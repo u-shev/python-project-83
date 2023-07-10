@@ -1,0 +1,5 @@
+.env
+.venv
+dist/
+page_analyzer/__pycache__/__init__.cpython-38.pyc
+page_analyzer/__pycache__/app.cpython-38.pyc
