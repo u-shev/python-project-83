@@ -3,3 +3,5 @@
 dist/
 page_analyzer/__pycache__/__init__.cpython-38.pyc
 page_analyzer/__pycache__/app.cpython-38.pyc
+page_analyzer/__pycache__/conn_database.cpython-38.pyc
+page_analyzer/__pycache__/parser.cpython-38.pyc
