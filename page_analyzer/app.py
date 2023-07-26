@@ -6,6 +6,7 @@ from flask import (
     flash,
     get_flashed_messages
     )
+from page_analyzer.parser import parse_url
 from page_analyzer.validator import validate
 from page_analyzer.conn_database import (
     get_url_list,
@@ -14,8 +15,13 @@ from page_analyzer.conn_database import (
     get_by_name
     )
 from datetime import date
+import os
+from dotenv import load_dotenv
+
 
 app = Flask(__name__)
+load_dotenv()
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 
 @app.route('/')
@@ -28,13 +34,14 @@ def index():
 def add_new_url():
     new_url = request.form.to_dict()
     new_url['created_at'] = date.today().strftime('%Y-%m-%d')
-    errors = validate(new_url)
+    parsed_url = parse_url(new_url['url'])
+    errors = validate(parsed_url)
     if errors:
         if 'no_url' in errors.keys():
             flash(errors['no_url'], 'alert-danger')
         if 'incorrect_url' in errors.keys():
             flash(errors['incorrect_url'], 'alert-danger')
-        if 'already_exists_url' in errors.keys:
+        if 'already_exists_url' in errors.keys():
             url = get_by_name(new_url['url'])
             id = url['id']
             flash(errors['already_exists_url'], 'alert-info')
@@ -46,9 +53,11 @@ def add_new_url():
             errors=errors
         )
     else:
+        new_url['url'] = parsed_url
         add_to_url_list(new_url)
         flash('Адрес добавлен', 'alert-success')
-        id = get_by_name(new_url['url'])['id']
+        added_url = get_by_name(parsed_url)
+        id = added_url['id']
         return redirect(url_for('get_one_url', id=id))
 
 
