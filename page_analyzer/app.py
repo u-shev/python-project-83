@@ -12,7 +12,7 @@ from page_analyzer.conn_database import (
     get_url_list,
     add_to_url_list,
     get_by_id,
-    get_by_name
+    get_by_name,
     )
 from datetime import date
 import os
@@ -32,33 +32,40 @@ def index():
 
 @app.post('/urls')
 def add_new_url():
-    new_url = request.form.to_dict()
-    new_url['created_at'] = date.today().strftime('%Y-%m-%d')
-    parsed_url = parse_url(new_url['url'])
+    new_url = request.form.get('url')
+    parsed_url = parse_url(new_url)
     errors = validate(parsed_url)
     if errors:
         if 'no_url' in errors.keys():
             flash(errors['no_url'], 'alert-danger')
+            errors = get_flashed_messages(with_categories=True)
+            return render_template(
+                'main.html',
+                new_url=new_url,
+                errors=errors
+            )
         if 'incorrect_url' in errors.keys():
             flash(errors['incorrect_url'], 'alert-danger')
+            errors = get_flashed_messages(with_categories=True)
+            return render_template(
+                'main.html',
+                new_url=new_url,
+                errors=errors
+            )
         if 'already_exists_url' in errors.keys():
-            url = get_by_name(new_url['url'])
-            id = url['id']
+            added_url = get_by_name(parsed_url)
+            id = added_url['id']
             flash(errors['already_exists_url'], 'alert-info')
             return redirect(url_for('get_url', id=id))
-        errors = get_flashed_messages(with_categories=True)
-        return render_template(
-            'index.html',
-            new_url=new_url,
-            errors=errors
-        )
     else:
+        new_url = request.form.to_dict()
         new_url['url'] = parsed_url
+        new_url['created_at'] = date.today().strftime('%Y-%m-%d')
         add_to_url_list(new_url)
         flash('Адрес добавлен', 'alert-success')
         added_url = get_by_name(parsed_url)
         id = added_url['id']
-        return redirect(url_for('get_one_url', id=id))
+        return redirect(url_for('get_url', id=id))
 
 
 @app.get('/urls')
@@ -67,8 +74,8 @@ def get_all_urls():
     return render_template('urls.html', urls=all_urls)
 
 
-@app.get('/urls/<int:id>')
+@app.get('/urls/<id>')
 def get_url(id):
     url = get_by_id(id)
-    messages = get_flashed_messages(with_categories=True)
-    return render_template('url.html', url=url, messages=messages)
+    errors = get_flashed_messages(with_categories=True)
+    return render_template('url.html', url=url, errors=errors)
