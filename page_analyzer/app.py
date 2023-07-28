@@ -32,8 +32,9 @@ def index():
 
 @app.post('/urls')
 def add_new_url():
-    new_url = request.form.get('url')
-    parsed_url = parse_url(new_url)
+    new_url = request.form.to_dict()
+    new_url['created_at'] = date.today().strftime('%Y-%m-%d')
+    parsed_url = parse_url(new_url['url'])
     errors = validate(parsed_url)
     if errors:
         if 'no_url' in errors.keys():
@@ -58,9 +59,7 @@ def add_new_url():
             flash(errors['already_exists_url'], 'alert-info')
             return redirect(url_for('get_url', id=id))
     else:
-        new_url = request.form.to_dict()
         new_url['url'] = parsed_url
-        new_url['created_at'] = date.today().strftime('%Y-%m-%d')
         add_to_url_list(new_url)
         flash('Адрес добавлен', 'alert-success')
         added_url = get_by_name(parsed_url)

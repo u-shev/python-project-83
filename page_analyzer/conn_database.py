@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import psycopg2
-from psycopg2 import extras
+from psycopg2.extras import DictCursor
 
 
 load_dotenv()
@@ -28,7 +28,7 @@ def add_to_url_list(new_url):
 
 def get_by_id(id):
     conn = psycopg2.connect(DATABASE_URL)
-    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
+    with conn.cursor(cursor_factory=DictCursor) as curs:
         curs.execute('SELECT * FROM urls where id = (%s)', (id,))
         url = curs.fetchone()
     conn.commit()
@@ -38,7 +38,7 @@ def get_by_id(id):
 
 def get_by_name(name):
     conn = psycopg2.connect(DATABASE_URL)
-    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
+    with conn.cursor(cursor_factory=DictCursor) as curs:
         curs.execute('SELECT * FROM urls where name = (%s)', (name,))
         url = curs.fetchone()
     conn.commit()

@@ -7,7 +7,7 @@ def validate(url):
     errors = {}
     parsed_url = parse_url(url)
     same_url = get_by_name(url)
-    if len(url) == 0:
+    if not url:
         errors['no_url'] = "URL обязателен"
     if url and (not validators.url(parsed_url) or len(parsed_url) > 255):
         errors['incorrect_url'] = 'Некорректный URL'
