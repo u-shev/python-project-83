@@ -8,4 +8,3 @@ def parse_url(url):
     else:
         parsed_url = ''
     return parsed_url
-
