@@ -13,10 +13,14 @@ from page_analyzer.conn_database import (
     add_to_url_list,
     get_by_id,
     get_by_name,
+    add_to_check_list,
+    get_check_list,
+    get_last_check
     )
 from datetime import date
 import os
 from dotenv import load_dotenv
+from page_analyzer.checks import get_check
 
 
 app = Flask(__name__)
@@ -59,9 +63,9 @@ def add_new_url():
             flash(errors['already_exists_url'], 'alert-info')
             return redirect(url_for('get_url', id=id))
     else:
-        new_url['url'] = parsed_url
+        new_url['name'] = parsed_url
         add_to_url_list(new_url)
-        flash('Адрес добавлен', 'alert-success')
+        flash('Страница успешно добавлена', 'alert-success')
         added_url = get_by_name(parsed_url)
         id = added_url['id']
         return redirect(url_for('get_url', id=id))
@@ -70,11 +74,24 @@ def add_new_url():
 @app.get('/urls')
 def get_all_urls():
     all_urls = get_url_list()
-    return render_template('urls.html', urls=all_urls)
+    last_check = get_last_check()
+    return render_template('urls.html', urls=all_urls, last_check=last_check)
 
 
 @app.get('/urls/<id>')
 def get_url(id):
     url = get_by_id(id)
+    checks = get_check_list()
     errors = get_flashed_messages(with_categories=True)
-    return render_template('url.html', url=url, errors=errors)
+    return render_template('url.html', url=url, errors=errors, checks=checks)
+
+
+@app.post('/urls/<id>/checks')
+def add_new_check(id):
+    check = get_check(id)
+    if check['status_code'] == 200:
+        add_to_check_list(check)
+        flash('Страница успешно проверена', 'alert-success')
+    else:
+        flash('Произошла ошибка при проверке', 'alert-danger')
+    return redirect(url_for('get_url', id=id))

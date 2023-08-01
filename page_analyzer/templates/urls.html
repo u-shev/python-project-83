@@ -32,14 +32,20 @@
     <tr>
       <th>ID</th>
       <th>Имя</th>
+      <th>Последняя проверка</th>
+      <th>Код ответа</th>
     </tr>
     </thead>
     <tbody>
     {% for url in urls %}
+      {% for check in last_check %}
       <tr>
         <td>{{ url[0] }}</td>
         <td><a href="{{ url_for('get_url', id=url[0]) }}">{{ url[1] }}</a></td>
+        <td>{{ check.created_at }}</td>
+        <td>{{ check.status_code }}</td>
       </tr>
+      {% endfor %}
     {% endfor %}
     </tbody>
   </table>
