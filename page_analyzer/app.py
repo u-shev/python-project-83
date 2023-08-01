@@ -99,4 +99,8 @@ def add_new_check(id):
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('error.html'), 404
+    return render_template('error.html', message='Страница не найдена'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html', message='Внутренняя ошибка сервера'), 500
