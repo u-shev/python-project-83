@@ -56,7 +56,7 @@ def add_new_url():
                 'main.html',
                 new_url=new_url,
                 errors=errors
-            )
+            ), 422
         if 'already_exists_url' in errors.keys():
             added_url = get_by_name(parsed_url)
             id = added_url['id']
