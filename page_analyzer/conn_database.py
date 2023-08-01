@@ -49,8 +49,9 @@ def get_by_name(name):
 def add_to_check_list(check):
     conn = psycopg2.connect(DATABASE_URL)
     with conn.cursor() as curs:
-        curs.execute('INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at)\
-                     VALUES (%s, %s, %s, %s,%s, %s);',
+        curs.execute('INSERT INTO url_checks (url_id, status_code, h1, title,\
+                      description, created_at)\
+                      VALUES (%s, %s, %s, %s,%s, %s);',
                      (check['url_id'],
                       check['status_code'],
                       check['h1'],
