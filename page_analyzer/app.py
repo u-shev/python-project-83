@@ -5,7 +5,7 @@ from flask import (
     url_for,
     flash,
     get_flashed_messages
-    )
+)
 from page_analyzer.parser import parse_url
 from page_analyzer.validator import validate
 from page_analyzer.conn_database import (
@@ -16,7 +16,7 @@ from page_analyzer.conn_database import (
     add_to_check_list,
     get_check_list,
     get_last_check
-    )
+)
 from datetime import date
 import os
 from dotenv import load_dotenv
