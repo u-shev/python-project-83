@@ -95,3 +95,8 @@ def add_new_check(id):
     else:
         flash('Произошла ошибка при проверке', 'alert-danger')
     return redirect(url_for('get_url', id=id))
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error.html'), 404
