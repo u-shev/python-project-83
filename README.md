@@ -1,6 +1,7 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/u-shev/python-project-83/workflows/hexlet-check/badge.svg)](https://github.com/u-shev/python-project-83/actions)
 [![Python CI](https://github.com/u-shev/python-project-83/actions/workflows/pyci.yml/badge.svg)](https://github.com/u-shev/python-project-83/actions/workflows/pyci.yml)
+<a href="https://codeclimate.com/github/u-shev/python-project-83/maintainability"><img src="https://api.codeclimate.com/v1/badges/1775077c13e52a6fdd9d/maintainability" /></a>
 
 <h3> <a href="https://app-0xws.onrender.com/">Page Analyzer</a> – это сайт, который анализирует указанные страницы на SEO-пригодность.</h3>
 
