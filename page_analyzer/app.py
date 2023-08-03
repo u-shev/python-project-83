@@ -81,7 +81,7 @@ def get_all_urls():
 @app.get('/urls/<id>')
 def get_url(id):
     url = get_by_id(id)
-    checks = get_check_list()
+    checks = get_check_list(id)
     errors = get_flashed_messages(with_categories=True)
     return render_template('url.html', url=url, errors=errors, checks=checks)
 

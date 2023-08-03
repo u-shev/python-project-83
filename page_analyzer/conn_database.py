@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 
 def get_url_list():
     conn = psycopg2.connect(DATABASE_URL)
-    with conn.cursor() as curs:
+    with conn.cursor(cursor_factory=DictCursor) as curs:
         curs.execute('SELECT * FROM urls')
         url_list = curs.fetchall()
     conn.close()
@@ -64,10 +64,10 @@ def add_to_check_list(check):
     conn.close()
 
 
-def get_check_list():
+def get_check_list(id):
     conn = psycopg2.connect(DATABASE_URL)
     with conn.cursor() as curs:
-        curs.execute('SELECT * FROM url_checks')
+        curs.execute('SELECT * FROM url_checks where url_id = (%s)', (id,))
         url_checks = curs.fetchall()
     conn.close()
     return url_checks
