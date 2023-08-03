@@ -15,7 +15,7 @@ from page_analyzer.conn_database import (
     get_by_name,
     add_to_check_list,
     get_check_list,
-    get_last_check
+    # get_last_check
 )
 from datetime import date
 import os
@@ -74,8 +74,7 @@ def add_new_url():
 @app.get('/urls')
 def get_all_urls():
     all_urls = get_url_list()
-    last_check = get_last_check()
-    return render_template('urls.html', urls=all_urls, last_check=last_check)
+    return render_template('urls.html', urls=all_urls)
 
 
 @app.get('/urls/<id>')
