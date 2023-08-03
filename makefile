@@ -1,7 +1,7 @@
 install:
 	poetry install
 build:
-      ./build.sh
+	./build.sh
 publish:
 	poetry publish --dry-run
 package-install:
