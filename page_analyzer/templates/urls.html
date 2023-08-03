@@ -21,8 +21,13 @@
       <tr>
         <td>{{ url[0] }}</td>
         <td><a href="{{ url_for('get_url', id=url[0]) }}">{{ url[1] }}</a></td>
+      {% if url.check_created_at %}
         <td>{{ url.check_created_at }}</td>
         <td>{{ url.status_code }}</td>
+      {% else %}
+        <td></td>
+        <td></td>
+      {% endif %}
       </tr>
     {% endfor %}
     </tbody>

@@ -15,7 +15,6 @@ from page_analyzer.conn_database import (
     get_by_name,
     add_to_check_list,
     get_check_list,
-    # get_last_check
 )
 from datetime import date
 import os
