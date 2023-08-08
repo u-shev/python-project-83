@@ -70,10 +70,11 @@ def add_to_check_list(check):
     conn.close()
 
 
-def get_check_list(id):
+def get_check_list(url_id):
     conn = psycopg2.connect(DATABASE_URL)
     with conn.cursor() as curs:
-        curs.execute('SELECT * FROM url_checks where url_id = (%s)', (id,))
+        curs.execute('SELECT * FROM url_checks where url_id = (%s)\
+                     ORDER BY id DESC', (url_id,))
         url_checks = curs.fetchall()
     conn.close()
     return url_checks

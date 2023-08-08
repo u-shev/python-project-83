@@ -18,6 +18,7 @@ from page_analyzer.conn_database import (
 )
 from datetime import date
 import os
+import requests
 from dotenv import load_dotenv
 from page_analyzer.checks import get_check
 
@@ -76,7 +77,7 @@ def get_all_urls():
     return render_template('urls.html', urls=all_urls)
 
 
-@app.get('/urls/<id>')
+@app.get('/urls/<int:id>')
 def get_url(id):
     url = get_by_id(id)
     checks = get_check_list(id)
@@ -84,14 +85,19 @@ def get_url(id):
     return render_template('url.html', url=url, errors=errors, checks=checks)
 
 
-@app.post('/urls/<id>/checks')
+@app.post('/urls/<int:id>/checks')
 def add_new_check(id):
-    check = get_check(id)
-    if check['status_code'] == 200:
-        add_to_check_list(check)
-        flash('Страница успешно проверена', 'alert-success')
-    else:
+    url = get_by_id(id)
+    page_name = url['name']
+    try:
+        response = requests.get(page_name)
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'alert-danger')
+        return redirect(url_for('get_url', id=id))
+    check = get_check(id)
+    add_to_check_list(check)
+    flash('Страница успешно проверена', 'alert-success')
     return redirect(url_for('get_url', id=id))
 
 
@@ -102,4 +108,5 @@ def page_not_found(e):
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return render_template('500.html', message='Внутренняя ошибка сервера'), 500
+    return render_template('error.html',
+                           message='Внутренняя ошибка сервера'), 500
