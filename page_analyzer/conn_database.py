@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 from psycopg2.extras import DictCursor
+from datetime import date
 
 
 load_dotenv()
@@ -27,7 +28,7 @@ def add_to_url_list(new_url):
     conn = psycopg2.connect(DATABASE_URL)
     with conn.cursor() as curs:
         curs.execute('INSERT INTO urls (name, created_at) VALUES (%s, %s);',
-                     (new_url['name'], new_url['created_at']))
+                     (new_url['name'], date.today().strftime('%Y-%m-%d')))
     conn.commit()
     conn.close()
 
@@ -52,20 +53,15 @@ def get_by_name(name):
     return url
 
 
-def add_to_check_list(check):
+def add_to_check_list(url_id, status_code=None, h1='',
+                      title='', description=''):
     conn = psycopg2.connect(DATABASE_URL)
     with conn.cursor() as curs:
         curs.execute('INSERT INTO url_checks (url_id, status_code, h1, title,\
                       description, created_at)\
-                      VALUES (%s, %s, %s, %s,%s, %s);',
-                     (check['url_id'],
-                      check['status_code'],
-                      check['h1'],
-                      check['title'],
-                      check['description'],
-                      check['created_at'],
-                      )
-                     )
+                      VALUES (%s, %s, %s, %s, %s, %s);',
+                     (url_id, status_code, h1, title, description,
+                      date.today().strftime('%Y-%m-%d')))
     conn.commit()
     conn.close()
 

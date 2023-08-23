@@ -16,7 +16,6 @@ from page_analyzer.conn_database import (
     add_to_check_list,
     get_check_list,
 )
-from datetime import date
 import os
 import requests
 from dotenv import load_dotenv
@@ -37,9 +36,9 @@ def index():
 @app.post('/urls')
 def add_new_url():
     new_url = request.form.to_dict()
-    new_url['created_at'] = date.today().strftime('%Y-%m-%d')
     parsed_url = parse_url(new_url['url'])
     errors = validate(parsed_url)
+    same_url = get_by_name(parsed_url)
     if errors:
         if 'no_url' in errors.keys():
             flash(errors['no_url'], 'alert-danger')
@@ -57,11 +56,11 @@ def add_new_url():
                 new_url=new_url,
                 errors=errors
             ), 422
-        if 'already_exists_url' in errors.keys():
-            added_url = get_by_name(parsed_url)
-            id = added_url['id']
-            flash(errors['already_exists_url'], 'alert-info')
-            return redirect(url_for('get_url', id=id))
+    elif same_url:
+        added_url = get_by_name(parsed_url)
+        id = added_url['id']
+        flash('Страница уже существует', 'alert-info')
+        return redirect(url_for('get_url', id=id))
     else:
         new_url['name'] = parsed_url
         add_to_url_list(new_url)
@@ -95,10 +94,15 @@ def add_new_check(id):
     except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'alert-danger')
         return redirect(url_for('get_url', id=id))
-    check = get_check(id)
-    add_to_check_list(check)
-    flash('Страница успешно проверена', 'alert-success')
-    return redirect(url_for('get_url', id=id))
+    else:
+        r = requests.get(page_name)
+        html_doc = r.text
+        status_code = r.status_code
+        h1, title, description = get_check(html_doc)
+        add_to_check_list(id, status_code=status_code, h1=h1,
+                          title=title, description=description)
+        flash('Страница успешно проверена', 'alert-success')
+        return redirect(url_for('get_url', id=id))
 
 
 @app.errorhandler(404)
