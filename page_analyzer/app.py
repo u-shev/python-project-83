@@ -1,3 +1,6 @@
+import os
+import requests
+from dotenv import load_dotenv
 from flask import (
     Flask,
     render_template,
@@ -6,9 +9,18 @@ from flask import (
     flash,
     get_flashed_messages
 )
-from page_analyzer.parser import parse_url
+from page_analyzer.normalizer import normalize_url
 from page_analyzer.validator import validate
-from page_analyzer.conn_database import (
+from page_analyzer.checks import get_check
+
+
+load_dotenv()
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+
+from page_analyzer.conn_database import ( # noqa
     get_url_list,
     add_to_url_list,
     get_by_id,
@@ -16,15 +28,6 @@ from page_analyzer.conn_database import (
     add_to_check_list,
     get_check_list,
 )
-import os
-import requests
-from dotenv import load_dotenv
-from page_analyzer.checks import get_check
-
-
-app = Flask(__name__)
-load_dotenv()
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 
 @app.route('/')
@@ -36,36 +39,31 @@ def index():
 @app.post('/urls')
 def add_new_url():
     new_url = request.form.to_dict()
-    parsed_url = parse_url(new_url['url'])
-    errors = validate(parsed_url)
-    same_url = get_by_name(parsed_url)
+    normalized_url = normalize_url(new_url['url'])
+    errors = validate(normalized_url)
+    same_url = get_by_name(normalized_url)
     if errors:
         if 'no_url' in errors.keys():
             flash(errors['no_url'], 'alert-danger')
             errors = get_flashed_messages(with_categories=True)
-            return render_template(
-                'main.html',
-                new_url=new_url,
-                errors=errors
-            )
-        if 'incorrect_url' in errors.keys():
+        elif 'incorrect_url' in errors.keys():
             flash(errors['incorrect_url'], 'alert-danger')
             errors = get_flashed_messages(with_categories=True)
-            return render_template(
-                'main.html',
-                new_url=new_url,
-                errors=errors
-            ), 422
+        return render_template(
+            'main.html',
+            new_url=new_url,
+            errors=errors
+        ), 422
     elif same_url:
-        added_url = get_by_name(parsed_url)
+        added_url = get_by_name(normalized_url)
         id = added_url['id']
         flash('Страница уже существует', 'alert-info')
         return redirect(url_for('get_url', id=id))
     else:
-        new_url['name'] = parsed_url
+        new_url['name'] = normalized_url
         add_to_url_list(new_url)
         flash('Страница успешно добавлена', 'alert-success')
-        added_url = get_by_name(parsed_url)
+        added_url = get_by_name(normalized_url)
         id = added_url['id']
         return redirect(url_for('get_url', id=id))
 
