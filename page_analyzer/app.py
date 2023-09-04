@@ -21,6 +21,7 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 
 
 from page_analyzer.conn_database import ( # noqa
+    get_last_checks_list,
     get_url_list,
     add_to_url_list,
     get_by_id,
@@ -71,7 +72,26 @@ def add_new_url():
 @app.get('/urls')
 def get_all_urls():
     all_urls = get_url_list()
-    return render_template('urls.html', urls=all_urls)
+    last_checks = get_last_checks_list()
+    result_list = list()
+    result = {}
+    for url in all_urls:
+        for check in last_checks:
+            if url['id'] == check['url_id']:
+                result = {'id': url['id'],
+                          'name': url['name'],
+                          'created_at': check['check_created_at'],
+                          'status_code': check['status_code']
+                          }
+                break
+            else:
+                result = {'id': url['id'],
+                          'name': url['name'],
+                          'created_at': '',
+                          'status_code': ''
+                         }
+        result_list.append(result)
+    return render_template('urls.html', urls=result_list)
 
 
 @app.get('/urls/<int:id>')

@@ -8,25 +8,48 @@ def make_conn():
     return psycopg2.connect(DATABASE_URL)
 
 
+# def get_url_list():
+#     conn = make_conn()
+#     with conn.cursor(cursor_factory=DictCursor) as curs:
+#         curs.execute('SELECT\
+#                       url_checks.url_id,\
+#                       MAX(url_checks.created_at) AS check_crested_at,\
+#                       url_checks.status_code,\
+#                      (SELECT name FROM urls WHERE id = url_checks.url_id)\
+#                       FROM url_checks\
+#                       GROUP BY url_checks.url_id, url_checks.status_code \
+#                       ORDER BY url_checks.url_id DESC')
+#         url_list = curs.fetchall()
+#     conn.close()
+#     return url_list
+
+
 def get_url_list():
     conn = make_conn()
     with conn.cursor(cursor_factory=DictCursor) as curs:
-        curs.execute('SELECT\
-                      url_checks.url_id,\
-                      MAX(url_checks.created_at) AS check_crested_at,\
-                      url_checks.status_code,\
-                     (SELECT name FROM urls WHERE id = url_checks.url_id)\
-                      FROM url_checks\
-                      GROUP BY url_checks.url_id, url_checks.status_code \
-                      ORDER BY url_checks.url_id DESC')
+        curs.execute('SELECT id, name FROM urls\
+                      ORDER BY id DESC')
         url_list = curs.fetchall()
     conn.close()
     return url_list
 
 
+def get_last_checks_list():
+    conn = make_conn()
+    with conn.cursor(cursor_factory=DictCursor) as curs:
+        curs.execute('SELECT url_id, MAX(created_at) AS check_created_at,\
+                     status_code\
+                     FROM url_checks\
+                     GROUP BY url_id, status_code\
+                     ORDER BY url_id DESC')
+        last_checks_list = curs.fetchall()
+    conn.close()
+    return last_checks_list
+
+
 def add_to_url_list(new_url):
     conn = make_conn()
-    with conn.cursor() as curs:
+    with conn.cursor(cursor_factory=DictCursor) as curs:
         curs.execute('INSERT INTO urls (name, created_at) VALUES (%s, %s);',
                      (new_url['name'], date.today().strftime('%Y-%m-%d')))
     conn.commit()
@@ -56,7 +79,7 @@ def get_by_name(name):
 def add_to_check_list(url_id, status_code=None, h1='',
                       title='', description=''):
     conn = make_conn()
-    with conn.cursor() as curs:
+    with conn.cursor(cursor_factory=DictCursor) as curs:
         curs.execute('INSERT INTO url_checks (url_id, status_code, h1, title,\
                       description, created_at)\
                       VALUES (%s, %s, %s, %s, %s, %s);',
@@ -68,7 +91,7 @@ def add_to_check_list(url_id, status_code=None, h1='',
 
 def get_check_list(url_id):
     conn = make_conn()
-    with conn.cursor() as curs:
+    with conn.cursor(cursor_factory=DictCursor) as curs:
         curs.execute('SELECT * FROM url_checks where url_id = (%s)\
                      ORDER BY id DESC', (url_id,))
         url_checks = curs.fetchall()
