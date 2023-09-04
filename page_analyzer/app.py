@@ -89,7 +89,7 @@ def get_all_urls():
                           'name': url['name'],
                           'created_at': '',
                           'status_code': ''
-                         }
+                          }
         result_list.append(result)
     return render_template('urls.html', urls=result_list)
 
